@@ -17,6 +17,11 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "utils.h"
+
+constexpr auto dimension = 48;
+bool generateCells = true;
+//bool generateCells = false;
+
 #include "Structs.h"
 
 #include <random>
@@ -93,8 +98,6 @@ void cameraMouseCallback(GLFWwindow *window, const double posX, const double pos
 
 bool useFresnel = false;
 AppState* appStatePtr;
-
-bool generateCells = true;
 
 void keyPressedCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
 
@@ -293,9 +296,9 @@ void initFrameBuffer(Framebuffer& buff) {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-shader_data s_data = { 15, 15, 15 };
-bool willDie[15 * 15 * 15];
-bool willGrow[15 * 15 * 15];
+shader_data s_data = { dimension, dimension, dimension };
+bool willDie[dimension * dimension * dimension];
+bool willGrow[dimension * dimension * dimension];
 
 void setWillDie(bool flag, int w, int h, int d)
 {
@@ -414,8 +417,11 @@ int main()
 	for (int i = 0; i < s_data.mapw; i++) {
 		for (int j = 0; j < s_data.maph; j++) {
 			for (int k = 0; k < s_data.mapd; k++) {
-				//				s_data.data[i + s_data.mapw * j + s_data.mapw * s_data.maph * k] = (rand() % 9 + 1) * ((i==0||i== s_data.mapw-1||j==0||j== s_data.maph-1||k==0||k== s_data.mapd-1) || (rand() % 10 == 0));
+#if 0
+				s_data.data[i + s_data.mapw * j + s_data.mapw * s_data.maph * k] = (rand() % 9 + 1) * ((i==0||i== s_data.mapw-1||j==0||j== s_data.maph-1||k==0||k== s_data.mapd-1) || (rand() % 10 == 0));
+#else
 				s_data.data[i + s_data.mapw * j + s_data.mapw * s_data.maph * k] = 0;
+#endif
 			}
 		}
 	}
@@ -464,49 +470,55 @@ int main()
 	// 2D
 #if 0
 	// Blinker
-	s_data.setCell(1, 7, 8, 0);
-	s_data.setCell(1, 8, 8, 0);
-	s_data.setCell(1, 9, 8, 0);
+	int x = dimension / 2;
+	int y = dimension / 2;
+	s_data.setCell(1, 1 + x, y, 0);
+	s_data.setCell(1, 2 + x, y, 0);
+	s_data.setCell(1, 3 + x, y, 0);
 #endif
 
 #if 0
 	// Toad
-	s_data.setCell(1, 7, 8, 0);
-	s_data.setCell(1, 8, 8, 0);
-	s_data.setCell(1, 9, 8, 0);
-	s_data.setCell(1, 6, 9, 0);
-	s_data.setCell(1, 7, 9, 0);
-	s_data.setCell(1, 8, 9, 0);
+	int x = dimension / 2;
+	int y = dimension / 2;
+	s_data.setCell(1, 2 + x, 1 + y, 0);
+	s_data.setCell(1, 3 + x, 1 + y, 0);
+	s_data.setCell(1, 4 + x, 1 + y, 0);
+	s_data.setCell(1, 1 + x, 2 + y, 0);
+	s_data.setCell(1, 2 + x, 2 + y, 0);
+	s_data.setCell(1, 3 + x, 2 + y, 0);
 #endif
 
 #if 0
 	// Glider
-	int x = 1;
-	s_data.setCell(1, 8 + x, 13, 0);
-	s_data.setCell(1, 7 + x, 12, 0);
-	s_data.setCell(1, 9 + x, 11, 0);
-	s_data.setCell(1, 8 + x, 11, 0);
-	s_data.setCell(1, 7 + x, 11, 0);
+	int x = dimension / 2;
+	int y = dimension / 2;
+	s_data.setCell(1, 2 + x, 3 + y, 0);
+	s_data.setCell(1, 1 + x, 2 + y, 0);
+	s_data.setCell(1, 3 + x, 1 + y, 0);
+	s_data.setCell(1, 2 + x, 1 + y, 0);
+	s_data.setCell(1, 1 + x, 1 + y, 0);
 #endif
 
 	// 3D
 #if 0
 	// Glider two depth
-	int x = 1;
+	int x = dimension / 2;
+	int y = dimension / 2;
 	for (int z = 8; z <= 9; z++)
 	{
-		s_data.setCell(z-5, 8 + x, 13, z);
-		s_data.setCell(z-5, 7 + x, 12, z);
-		s_data.setCell(z-5, 9 + x, 11, z);
-		s_data.setCell(z-5, 8 + x, 11, z);
-		s_data.setCell(z-5, 7 + x, 11, z);
+		s_data.setCell(z-5, 2 + x, 3 + y, z);
+		s_data.setCell(z-5, 1 + x, 2 + y, z);
+		s_data.setCell(z-5, 3 + x, 1 + y, z);
+		s_data.setCell(z-5, 2 + x, 1 + y, z);
+		s_data.setCell(z-5, 1 + x, 1 + y, z);
 }
 #endif
 
 #if 0
 	// Larger longer ship two depth
-	int x = 10;
-	int y = 8;
+	int x = dimension / 2;
+	int y = dimension / 2;
 	for (int z = 8; z <= 9; z++)
 	{
 		s_data.setCell(z-5, x - 1, y + 0, z);
@@ -528,8 +540,8 @@ int main()
 	ruleCellGrowsMoreThan = 4;
 	ruleCellGrowsFewerThan = 6;
 
-	int x = 7;
-	int y = 8;
+	int x = dimension / 2;
+	int y = dimension - 5;
 	s_data.setCell(1, x + 0, y + 2, 8);
 	s_data.setCell(1, x + 3, y + 2, 8);
 	s_data.setCell(1, x + 0, y + 1, 8);
@@ -551,9 +563,9 @@ int main()
 	ruleCellGrowsMoreThan = 3;
 	ruleCellGrowsFewerThan = 6;
 
-	int x = 7;
-	int y = 8;
-	int z = 8;
+	int x = dimension / 2;
+	int y = dimension / 2;
+	int z = dimension / 2;
 	s_data.setCell(1, x, y, z);
 	s_data.setCell(2, x - 1, y, z);
 	s_data.setCell(3, x + 1, y, z);

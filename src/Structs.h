@@ -41,7 +41,7 @@ struct shader_data {
 
 	glm::vec3 palette[10];
 	
-	int data[15*15*15];
+	int data[dimension* dimension * dimension];
 
 	void setCell(int stage, int w, int h, int d)
 	{
