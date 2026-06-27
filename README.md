@@ -4,17 +4,20 @@
 * Conway-Piper adds a third dimension, hence 3D, and updates the rules for when cells with neighbours, live, dies, or grows.
 * Press the 'G' key to step to the next generation.
 * The standard Conway rules ( https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life#Rules ) are expresssed as:
-** rule3D = false
-** ruleCellDiesFewerThan = 2
-** ruleCellLivesFewerThan = 4 (i.e. 2 to 3)
-** ruleCellDiesMoreThan = 3
-* And an extra range for when an empty cell grows into a new cell. This range accounts for the optional extra dimension. i.e. Exactly 3 cells in this case.
-** ruleCellGrowsMoreThan = 2
-** ruleCellGrowsFewerThan = 4
-* This can be expressed as Conway-Piper/2/2/4/3/2/4
-** /2/ dimensions followed by the rule values above in order
+	* rule3D = false
+	* ruleCellDiesFewerThan = 2
+	* ruleCellLivesFewerThan = 4 (i.e. 2 to 3)
+	* ruleCellDiesMoreThan = 3
+	* And an extra range for when an empty cell grows into a new cell. This range accounts for the optional extra dimension. i.e. Exactly 3 cells in this case.
+		* ruleCellGrowsMoreThan = 2
+		* ruleCellGrowsFewerThan = 4
+	* This can be expressed as Conway-Piper/2/2/4/3/2/4
+		* i.e. /2/ dimensions followed by the rule values above in order separated by /
+* This is displayed using StormCreeper's voxel renderer
 
-* * This is displayed using StormCreeper's voxel renderer
+## Examples renders:
+
+![Pulsar](images/Pulsar.png)
 
 # StormCreeper's Voxel renderer
 
