@@ -43,6 +43,10 @@ struct shader_data {
 	
 	int data[15*15*15];
 
+	void setCell(int stage, int w, int h, int d)
+	{
+		data[w + (mapw * h) + (mapw * maph * d)] = stage;
+	}
 };
 
 struct Framebuffer {

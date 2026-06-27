@@ -26,6 +26,26 @@
 #pragma comment(lib, "glfw3.lib")
 #pragma comment(lib, "glew32.lib")
 
+#if 0
+// The standard Conway rules ( https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life#Rules )
+bool rule3D = false;
+int ruleCellDiesFewerThan = 2;
+int ruleCellLivesFewerThan = 4;
+int ruleCellDiesMoreThan = 3;
+// Gives a range for when a cell grows
+int ruleCellGrowsMoreThan = 2;
+int ruleCellGrowsFewerThan = 4;
+#else
+bool rule3D = true;
+int ruleCellDiesFewerThan = 5;
+int ruleCellLivesFewerThan = 7;
+int ruleCellDiesMoreThan = 7;
+// Gives a range for when a cell grows
+int ruleCellGrowsMoreThan = 5;
+int ruleCellGrowsFewerThan = 7;
+#endif
+
+
 int width = 800;
 int height = 800;
 
@@ -74,12 +94,18 @@ void cameraMouseCallback(GLFWwindow *window, const double posX, const double pos
 bool useFresnel = false;
 AppState* appStatePtr;
 
+bool generateCells = true;
+
 void keyPressedCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
 
 	if (key == GLFW_KEY_P && action == GLFW_PRESS) {
 		appStatePtr->useSRGB = !appStatePtr->useSRGB;
-	}if (key == GLFW_KEY_O && action == GLFW_PRESS) {
+	}
+	if (key == GLFW_KEY_O && action == GLFW_PRESS) {
 		appStatePtr->useACES = !appStatePtr->useACES;
+	}
+	if (key == GLFW_KEY_G && action == GLFW_PRESS) {
+		generateCells = true;
 	}
 
 
@@ -137,10 +163,10 @@ void keyPressedCallback(GLFWwindow* window, int key, int scancode, int action, i
 
 
 void initCamera() {
-	camera.position = glm::vec3(0.0f, 0.5f, -5.0f);
+	camera.position = glm::vec3(0.0f, 0.5f, -50.0f);
 	camera.direction = glm::vec3(0.0f, 0.0f, 1.0f);
 	camera.rotationX = 0.0f;
-	camera.rotationY = 0.0f;
+	camera.rotationY = 90.0f;
 	camera.worldUp = glm::vec3(0.0f, 1.0f, 0.0f);
 	camera.front = glm::normalize(camera.direction);
 	camera.right = glm::normalize(glm::cross(camera.front, camera.worldUp));
@@ -152,11 +178,27 @@ void initCamera() {
 	camera.keys = { };
 }
 
-std::string loadFile(std::string filename) {
+std::string loadFileDirect(std::string filename) {
 	std::ifstream t(filename);
 	std::stringstream buffer;
 	buffer << t.rdbuf();
 	return buffer.str();
+}
+
+// Tries to find a file by searching backwards in the path
+std::string loadFile(std::string filename) {
+	int tries = 0;
+	while (tries++ < 5)
+	{
+		std::string ret;
+		ret = loadFileDirect(filename);
+		if (!ret.empty())
+		{
+			return ret;
+		}
+		filename = "../" + filename;
+	}
+	return "";
 }
 
 void updateCamera(float deltaTime) {
@@ -189,7 +231,9 @@ bool initOpenGL(AppState *appState) {
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	// Create a windowed mode window and its OpenGL context
-	appState->window = glfwCreateWindow(width, height, "Hello World", NULL, NULL);
+	char title[128];
+	sprintf(title, "Conway-Piper/%d/%d/%d/%d/%d/%d", rule3D?3:2, ruleCellDiesFewerThan, ruleCellLivesFewerThan , ruleCellDiesMoreThan, ruleCellGrowsMoreThan, ruleCellGrowsFewerThan);
+	appState->window = glfwCreateWindow(width, height, title, NULL, NULL);
 	if (!appState->window) {
 		std::cerr << "Failed to create GLFW window" << std::endl;
 		glfwTerminate();
@@ -249,13 +293,28 @@ void initFrameBuffer(Framebuffer& buff) {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-int main() {
+shader_data s_data = { 15, 15, 15 };
+bool willDie[15 * 15 * 15];
+bool willGrow[15 * 15 * 15];
+
+void setWillDie(bool flag, int w, int h, int d)
+{
+	willDie[w + (s_data.mapw * h) + (s_data.mapw * s_data.maph * d)] = flag;
+}
+
+void setWillGrow(bool flag, int w, int h, int d)
+{
+	willGrow[w + (s_data.mapw * h) + (s_data.mapw * s_data.maph * d)] = flag;
+}
+
+int main()
+{
 	srand(time(NULL));
 
 	AppState appState;
 	appStatePtr = &appState;
-	
-	if(!initOpenGL(&appState))
+
+	if (!initOpenGL(&appState))
 		return -1;
 
 
@@ -271,7 +330,7 @@ int main() {
 
 	glGenVertexArrays(1, &appState.vao);
 	glGenBuffers(1, &appState.vbo);
-	
+
 	glBindVertexArray(appState.vao);
 	glBindBuffer(GL_ARRAY_BUFFER, appState.vbo);
 
@@ -292,9 +351,9 @@ int main() {
 
 	// Loading the shaders and checking for compilation errors
 
-	std::string vertexShaderSource = loadFile("../../src/vertex.glsl");
-	std::string fragmentShaderSource = loadFile("../../src/fragment.glsl");
-	std::string quadFragShaderSource = loadFile("../../src/quad_frag.glsl");
+	std::string vertexShaderSource = loadFile("src/vertex.glsl");
+	std::string fragmentShaderSource = loadFile("src/fragment.glsl");
+	std::string quadFragShaderSource = loadFile("src/quad_frag.glsl");
 
 	// TODO: 
 
@@ -352,14 +411,15 @@ int main() {
 
 	// Init shader storage buffer
 
-	shader_data s_data = { 15, 15, 15};
 	for (int i = 0; i < s_data.mapw; i++) {
 		for (int j = 0; j < s_data.maph; j++) {
 			for (int k = 0; k < s_data.mapd; k++) {
-				s_data.data[i + s_data.mapw * j + s_data.mapw * s_data.maph * k] = (rand() % 9 + 1) * ((i==0||i== s_data.mapw-1||j==0||j== s_data.maph-1||k==0||k== s_data.mapd-1) || (rand() % 10 == 0));
+				//				s_data.data[i + s_data.mapw * j + s_data.mapw * s_data.maph * k] = (rand() % 9 + 1) * ((i==0||i== s_data.mapw-1||j==0||j== s_data.maph-1||k==0||k== s_data.mapd-1) || (rand() % 10 == 0));
+				s_data.data[i + s_data.mapw * j + s_data.mapw * s_data.maph * k] = 0;
 			}
 		}
 	}
+
 	for (int i = 0; i < 10; i++) {
 		s_data.palette[i] = glm::vec3(rand() / (float)RAND_MAX, rand() / (float)RAND_MAX, rand() / (float)RAND_MAX);
 	}
@@ -372,14 +432,14 @@ int main() {
 
 	// Init the frame buffers
 
-	Framebuffer *fb1 = &appState.fb1;
+	Framebuffer* fb1 = &appState.fb1;
 	initFrameBuffer(appState.fb1);
 
-	Framebuffer *fb2 = &appState.fb2;
+	Framebuffer* fb2 = &appState.fb2;
 	initFrameBuffer(appState.fb2);
 
 	// Init the camera
-	
+
 	bool s_data_changed = false;
 
 	int spp = 1;
@@ -398,6 +458,111 @@ int main() {
 	float lastTimeFPS = glfwGetTime();
 	int frameCount = 0;
 	int frame = 0;
+
+	// Set starting state
+	// https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life#Pattern_taxonomy
+	// 2D
+#if 0
+	// Blinker
+	s_data.setCell(1, 7, 8, 0);
+	s_data.setCell(1, 8, 8, 0);
+	s_data.setCell(1, 9, 8, 0);
+#endif
+
+#if 0
+	// Toad
+	s_data.setCell(1, 7, 8, 0);
+	s_data.setCell(1, 8, 8, 0);
+	s_data.setCell(1, 9, 8, 0);
+	s_data.setCell(1, 6, 9, 0);
+	s_data.setCell(1, 7, 9, 0);
+	s_data.setCell(1, 8, 9, 0);
+#endif
+
+#if 0
+	// Glider
+	int x = 1;
+	s_data.setCell(1, 8 + x, 13, 0);
+	s_data.setCell(1, 7 + x, 12, 0);
+	s_data.setCell(1, 9 + x, 11, 0);
+	s_data.setCell(1, 8 + x, 11, 0);
+	s_data.setCell(1, 7 + x, 11, 0);
+#endif
+
+	// 3D
+#if 0
+	// Glider two depth
+	int x = 1;
+	for (int z = 8; z <= 9; z++)
+	{
+		s_data.setCell(z-5, 8 + x, 13, z);
+		s_data.setCell(z-5, 7 + x, 12, z);
+		s_data.setCell(z-5, 9 + x, 11, z);
+		s_data.setCell(z-5, 8 + x, 11, z);
+		s_data.setCell(z-5, 7 + x, 11, z);
+}
+#endif
+
+#if 0
+	// Larger longer ship two depth
+	int x = 10;
+	int y = 8;
+	for (int z = 8; z <= 9; z++)
+	{
+		s_data.setCell(z-5, x - 1, y + 0, z);
+		s_data.setCell(z-5, x - 0, y + 1, z);
+		s_data.setCell(z-5, x - 1, y + 1, z);
+		s_data.setCell(z-5, x - 2, y + 1, z);
+		s_data.setCell(z-5, x - 2, y + 2, z);
+		s_data.setCell(z-5, x - 0, y + 3, z);
+		s_data.setCell(z-5, x - 1, y + 3, z);
+		s_data.setCell(z-5, x - 0, y + 4, z);
+	}
+#endif
+
+#if 0
+	// Bracket glider
+	ruleCellDiesFewerThan = 4;
+	ruleCellLivesFewerThan = 5;
+	ruleCellDiesMoreThan = 5;
+	ruleCellGrowsMoreThan = 4;
+	ruleCellGrowsFewerThan = 6;
+
+	int x = 7;
+	int y = 8;
+	s_data.setCell(1, x + 0, y + 2, 8);
+	s_data.setCell(1, x + 3, y + 2, 8);
+	s_data.setCell(1, x + 0, y + 1, 8);
+	s_data.setCell(1, x + 3, y + 1, 8);
+	s_data.setCell(1, x + 1, y + 0, 8);
+	s_data.setCell(1, x + 2, y + 0, 8);
+	//
+	s_data.setCell(2, x + 1, y + 2, 9);
+	s_data.setCell(2, x + 2, y + 2, 9);
+	s_data.setCell(2, x + 1, y + 1, 9);
+	s_data.setCell(2, x + 2, y + 1, 9);
+#endif
+
+#if 1
+	// Pulsar
+	ruleCellDiesFewerThan = 5;
+	ruleCellLivesFewerThan = 6;
+	ruleCellDiesMoreThan = 5;
+	ruleCellGrowsMoreThan = 3;
+	ruleCellGrowsFewerThan = 6;
+
+	int x = 7;
+	int y = 8;
+	int z = 8;
+	s_data.setCell(1, x, y, z);
+	s_data.setCell(2, x - 1, y, z);
+	s_data.setCell(3, x + 1, y, z);
+	s_data.setCell(4, x, y - 1, z);
+	s_data.setCell(5, x, y + 1, z);
+	s_data.setCell(6, x, y, z - 1);
+	s_data.setCell(7, x, y, z + 1);
+#endif
+
 
 	// Main rendering / event loop
 	while (!glfwWindowShouldClose(appState.window)) {
@@ -516,6 +681,150 @@ int main() {
 
 		frame++;
 		frameSinceLastReset++;
+
+
+		if (generateCells)
+		{
+			generateCells = false;
+
+			// Process any state
+			int depth = s_data.mapd;
+			if (!rule3D)
+			{
+				depth = 1;
+			}
+
+			for (int i = 0; i < s_data.mapw; i++) {
+				for (int j = 0; j < s_data.maph; j++) {
+					for (int k = 0; k < depth; k++) {
+						if (willGrow[i + s_data.mapw * j + s_data.mapw * s_data.maph * k])
+						{
+							s_data.data[i + s_data.mapw * j + s_data.mapw * s_data.maph * k] = 2;
+//							s_data.data[i + s_data.mapw * j + s_data.mapw * s_data.maph * k] = rand() % 9 + 1;
+							willGrow[i + s_data.mapw * j + s_data.mapw * s_data.maph * k] = false;
+						}
+						else if (willDie[i + s_data.mapw * j + s_data.mapw * s_data.maph * k])
+						{
+							s_data.data[i + s_data.mapw * j + s_data.mapw * s_data.maph * k] = 0;
+							willDie[i + s_data.mapw * j + s_data.mapw * s_data.maph * k] = false;
+						}
+						else if (s_data.data[i + s_data.mapw * j + s_data.mapw * s_data.maph * k] > 0)
+						{
+							s_data.data[i + s_data.mapw * j + s_data.mapw * s_data.maph * k] = s_data.data[i + s_data.mapw * j + s_data.mapw * s_data.maph * k] + 1;
+							if (s_data.data[i + s_data.mapw * j + s_data.mapw * s_data.maph * k] >= 9)
+							{
+//								s_data.data[i + s_data.mapw * j + s_data.mapw * s_data.maph * k] = rand() % 9 + 1;
+								s_data.data[i + s_data.mapw * j + s_data.mapw * s_data.maph * k] = 1;
+							}
+						}
+					}
+				}
+			}
+
+			// Calculate what to do next
+			for (int i = 1; i < s_data.mapw - 1; i++)
+			{
+				for (int j = 1; j < s_data.maph - 1; j++)
+				{
+					if (!rule3D)
+					{
+						// 2D rules processing
+						int neighbours = 0;
+						for (int di = -1; di <= 1; di++)
+						{
+							for (int dj = -1; dj <= 1; dj++)
+							{
+								if (di == 0 && dj == 0)
+								{
+									continue;
+								}
+
+								if (s_data.data[(i + di) + s_data.mapw * (j + dj)] > 0)
+								{
+									neighbours++;
+								}
+							}
+						}
+						if (s_data.data[i + s_data.mapw * j] > 0)
+						{
+							// Any live cell...
+							if (neighbours < ruleCellDiesFewerThan)
+							{
+								setWillDie(true, i, j, 0);
+							}
+							else if (neighbours < ruleCellLivesFewerThan)
+							{
+								// Do nothing
+							}
+							else if (neighbours > ruleCellDiesMoreThan)
+							{
+								setWillDie(true, i, j, 0);
+							}
+						}
+						else
+						{
+							// Any dead cell...
+							if (neighbours > ruleCellGrowsMoreThan && neighbours < ruleCellGrowsFewerThan)
+							{
+								setWillGrow(true, i, j, 0);
+							}
+						}
+					}
+					else
+					{
+						// 3D rules processing
+						for (int k = 1; k < depth - 1; k++)
+						{
+							int neighbours = 0;
+							for (int di = -1; di <= 1; di++)
+							{
+								for (int dj = -1; dj <= 1; dj++)
+								{
+									for (int dk = -1; dk <= 1; dk++)
+									{
+										if (di == 0 && dj == 0 && dk == 0)
+										{
+											continue;
+										}
+
+										if (s_data.data[(i + di) + s_data.mapw * (j + dj) + s_data.mapw * s_data.maph * (k + dk)] > 0)
+										{
+											neighbours++;
+										}
+									}
+								}
+							}
+							if (s_data.data[i + s_data.mapw * j + s_data.mapw * s_data.maph * k] > 0)
+							{
+								// Any live cell...
+								if (neighbours < ruleCellDiesFewerThan)
+								{
+									setWillDie(true, i, j, k);
+								}
+								else if (neighbours < ruleCellLivesFewerThan)
+								{
+									// Do nothing
+								}
+								else if (neighbours > ruleCellDiesMoreThan)
+								{
+									setWillDie(true, i, j, k);
+								}
+							}
+							else
+							{
+								// Any dead cell...
+								if (neighbours > ruleCellGrowsMoreThan && neighbours < ruleCellGrowsFewerThan)
+								{
+									setWillGrow(true, i, j, k);
+								}
+							}
+						}
+					}
+				}
+			}
+
+			glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(shader_data), &s_data, GL_DYNAMIC_DRAW);
+		}
 	}
 
 	// Cleanup
