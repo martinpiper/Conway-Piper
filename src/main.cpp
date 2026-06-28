@@ -21,8 +21,13 @@
 constexpr auto dimension = 48;
 bool generateCells = true;
 //bool generateCells = false;
+bool updateBuffer = true;
 
 #include "Structs.h"
+
+shader_data s_data = { dimension, dimension, dimension };
+bool willDie[dimension * dimension * dimension];
+bool willGrow[dimension * dimension * dimension];
 
 #include <random>
 
@@ -107,10 +112,6 @@ void keyPressedCallback(GLFWwindow* window, int key, int scancode, int action, i
 	if (key == GLFW_KEY_O && action == GLFW_PRESS) {
 		appStatePtr->useACES = !appStatePtr->useACES;
 	}
-	if (key == GLFW_KEY_G && action == GLFW_PRESS) {
-		generateCells = true;
-	}
-
 
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)  {
 		//hide or show cursor
@@ -127,6 +128,78 @@ void keyPressedCallback(GLFWwindow* window, int key, int scancode, int action, i
 	if(paused)
 		return;
 
+	if (key == GLFW_KEY_G && action == GLFW_PRESS) {
+		generateCells = true;
+	}
+
+	if (key == GLFW_KEY_1 && action == GLFW_PRESS)
+	{
+		// Step out from the camera to try to find the last non-empty block, for a maximum sensible distance.
+		int x = -1;
+		int y = 0;
+		int z = 0;
+
+		for (float dist = 0.0f; dist <= 6.0f; dist += 0.5f)
+		{
+			glm::vec3 wantPos = camera.position + (camera.front * dist);
+			wantPos.x -= 1.0f;
+			wantPos.x += (float)(dimension / 4);
+			if (wantPos.x >= 0.0f && wantPos.y >= 0.0f && wantPos.z >= 0.0f &&
+				wantPos.x < float(dimension) && wantPos.y < float(dimension) && wantPos.z < float(dimension))
+			{
+				int tx = int(wantPos.x);
+				int ty = int(wantPos.y);
+				int tz = int(wantPos.z);
+
+				int cell = s_data.getCell(tx, ty, tz);
+				if (!cell)
+				{
+					x = tx;
+					y = ty;
+					z = tz;
+				}
+				else
+				{
+					break;
+				}
+			}
+		}
+
+		if (x >= 0)
+		{
+			static int col = 1;
+			col += 1;
+			col = (col % 9) + 1;
+			s_data.setCell(col, x, y, z);
+			updateBuffer = true;
+		}
+	}
+
+	if (key == GLFW_KEY_0 && action == GLFW_PRESS)
+	{
+		// Step out from the camera to try to find the first non-empty block, for a maximum sensible distance.
+		for (float dist = 0.0f; dist <= 6.0f; dist += 0.5f)
+		{
+			glm::vec3 wantPos = camera.position + (camera.front * dist);
+			wantPos.x -= 1.0f;
+			wantPos.x += (float)(dimension / 4);
+			if (wantPos.x >= 0.0f && wantPos.y >= 0.0f && wantPos.z >= 0.0f &&
+				wantPos.x < float(dimension) && wantPos.y < float(dimension) && wantPos.z < float(dimension))
+			{
+				int tx = int(wantPos.x);
+				int ty = int(wantPos.y);
+				int tz = int(wantPos.z);
+
+				int cell = s_data.getCell(tx, ty, tz);
+				if (cell)
+				{
+					s_data.setCell(0, tx, ty, tz);
+					updateBuffer = true;
+					break;
+				}
+			}
+		}
+	}
 
 	frameSinceLastReset = 0;
 
@@ -295,10 +368,6 @@ void initFrameBuffer(Framebuffer& buff) {
 	}
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
-
-shader_data s_data = { dimension, dimension, dimension };
-bool willDie[dimension * dimension * dimension];
-bool willGrow[dimension * dimension * dimension];
 
 void setWillDie(bool flag, int w, int h, int d)
 {
@@ -697,6 +766,7 @@ int main()
 
 		if (generateCells)
 		{
+			updateBuffer = true;
 			generateCells = false;
 
 			// Process any state
@@ -834,7 +904,11 @@ int main()
 					}
 				}
 			}
+		}
 
+		if (updateBuffer)
+		{
+			updateBuffer = false;
 			glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(shader_data), &s_data, GL_DYNAMIC_DRAW);
 		}
 	}

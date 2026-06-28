@@ -3,6 +3,8 @@
 * Conway's Game of Life is a cellular automaton that is played on a 2D square grid. The rules for this are well known: https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life
 * Conway-Piper adds a third dimension, hence 3D, and updates the rules for when cells with neighbours, live, dies, or grows.
 * Press the 'G' key to step to the next generation.
+* Press the '1' key to place a cell where the camera is looking.
+* Press the '0' key to delete where the camera is looking.
 * The standard Conway rules ( https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life#Rules ) are expresssed as:
 	* rule3D = false
 	* ruleCellDiesFewerThan = 2

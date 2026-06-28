@@ -47,6 +47,11 @@ struct shader_data {
 	{
 		data[w + (mapw * h) + (mapw * maph * d)] = stage;
 	}
+
+	int getCell(int w, int h, int d)
+	{
+		return data[w + (mapw * h) + (mapw * maph * d)];
+	}
 };
 
 struct Framebuffer {
