@@ -5,6 +5,7 @@
 * Press the 'G' key to step to the next generation.
 * Press the '1' key to place a cell where the camera is looking.
 * Press the '0' key to delete where the camera is looking.
+* Press the 'V' key to toggle the camera to the corner of the cells, or a viewpoint further away.
 * The standard Conway rules ( https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life#Rules ) are expresssed as:
 	* rule3D = false
 	* ruleCellDiesFewerThan = 2

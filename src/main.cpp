@@ -18,7 +18,7 @@
 
 #include "utils.h"
 
-constexpr auto dimension = 48;
+constexpr auto dimension = 60;
 bool generateCells = false;
 bool updateBuffer = true;
 
@@ -66,6 +66,16 @@ int frameSinceLastReset = 0;
 
 bool paused = false;
 
+void cameraCommonCalc(void)
+{
+	camera.direction.x = cos(camera.rotationY * degtorad) * cos(camera.rotationX * degtorad);
+	camera.direction.y = sin(camera.rotationX * degtorad);
+	camera.direction.z = sin(camera.rotationY * degtorad) * cos(camera.rotationX * degtorad);
+	camera.front = glm::normalize(camera.direction);
+	camera.right = glm::normalize(glm::cross(camera.front, camera.worldUp));
+	camera.up = glm::normalize(glm::cross(camera.right, camera.front));
+}
+
 void cameraMouseCallback(GLFWwindow *window, const double posX, const double posY) {
 
 	if(paused)
@@ -89,13 +99,7 @@ void cameraMouseCallback(GLFWwindow *window, const double posX, const double pos
 	if (camera.rotationX < -89.0f)
 		camera.rotationX = -89.0f;
 
-
-	camera.direction.x = cos(camera.rotationY * degtorad) * cos(camera.rotationX * degtorad);
-	camera.direction.y = sin(camera.rotationX * degtorad);
-	camera.direction.z = sin(camera.rotationY * degtorad) * cos(camera.rotationX * degtorad);
-	camera.front = glm::normalize(camera.direction);
-	camera.right = glm::normalize(glm::cross(camera.front, camera.worldUp));
-	camera.up = glm::normalize(glm::cross(camera.right, camera.front));
+	cameraCommonCalc();
 
 	glfwSetCursorPos(window, width / 2, height / 2);
 }
@@ -135,6 +139,24 @@ void keyPressedCallback(GLFWwindow* window, int key, int scancode, int action, i
 		generateCells = true;
 	}
 
+	if (key == GLFW_KEY_V && action == GLFW_PRESS)
+	{
+		camera.rotationY = 90.0f;
+		camera.rotationX = 0.0f;
+		static bool switcher = false;
+		switcher = !switcher;
+		if (switcher)
+		{
+			camera.position = glm::vec3(0.0f, 5.0f, -1.0f);
+		}
+		else
+		{
+			camera.position = glm::vec3(dimension / 2.0f, dimension / 2.0f, -50.0f);
+		}
+
+		cameraCommonCalc();
+	}
+
 	if (key == GLFW_KEY_1 && action == GLFW_PRESS)
 	{
 		// Step out from the camera to try to find the last non-empty block, for a maximum sensible distance.
@@ -142,11 +164,13 @@ void keyPressedCallback(GLFWwindow* window, int key, int scancode, int action, i
 		int y = 0;
 		int z = 0;
 
-		for (float dist = 0.0f; dist <= 6.0f; dist += 0.5f)
+		for (float dist = 0.0f; dist <= 10.0f; dist += 0.5f)
 		{
 			glm::vec3 wantPos = camera.position + (camera.front * dist);
 			wantPos.x -= 1.0f;
 			wantPos.x += (float)(dimension / 4);
+			// MPi: Why is this position hack needed?
+			wantPos.x -= 3.0f;
 			if (wantPos.x >= 0.0f && wantPos.y >= 0.0f && wantPos.z >= 0.0f &&
 				wantPos.x < float(dimension) && wantPos.y < float(dimension) && wantPos.z < float(dimension))
 			{
@@ -181,11 +205,13 @@ void keyPressedCallback(GLFWwindow* window, int key, int scancode, int action, i
 	if (key == GLFW_KEY_0 && action == GLFW_PRESS)
 	{
 		// Step out from the camera to try to find the first non-empty block, for a maximum sensible distance.
-		for (float dist = 0.0f; dist <= 6.0f; dist += 0.5f)
+		for (float dist = 0.0f; dist <= 10.0f; dist += 0.5f)
 		{
 			glm::vec3 wantPos = camera.position + (camera.front * dist);
 			wantPos.x -= 1.0f;
 			wantPos.x += (float)(dimension / 4);
+			// MPi: Why is this position hack needed?
+			wantPos.x -= 3.0f;
 			if (wantPos.x >= 0.0f && wantPos.y >= 0.0f && wantPos.z >= 0.0f &&
 				wantPos.x < float(dimension) && wantPos.y < float(dimension) && wantPos.z < float(dimension))
 			{
