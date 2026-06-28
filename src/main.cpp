@@ -570,7 +570,7 @@ int main()
 #endif
 
 	// 3D
-#if 0
+#if 1
 	// Glider two depth
 	int x = dimension / 2;
 	int y = dimension / 2;
@@ -624,7 +624,7 @@ int main()
 	s_data.setCell(2, x + 2, y + 1, 9);
 #endif
 
-#if 1
+#if 0
 	// Pulsar
 	ruleCellDiesFewerThan = 5;
 	ruleCellLivesFewerThan = 6;
