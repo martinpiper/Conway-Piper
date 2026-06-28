@@ -410,7 +410,7 @@ void setWillGrow(bool flag, int w, int h, int d)
 
 int main()
 {
-	srand(time(NULL));
+	srand(123);
 
 	AppState appState;
 	appStatePtr = &appState;

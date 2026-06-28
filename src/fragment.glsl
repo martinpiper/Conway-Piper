@@ -92,10 +92,10 @@ struct intersection {
 const int numSpheres = 4;
 
 Sphere spheres[numSpheres] = Sphere[] (
-	Sphere(vec3(-3, 0, 0), 1, Material(vec3(0.95, 0.5, 0.95), vec3(1.0, 0.80, 0.80), vec3(0), 1.0, 0.9)),
-	Sphere(vec3(-1, 0, 0), 1, Material(vec3(0.5, 0.95, 0.95), vec3(0.80, 1.0, 0.80), vec3(0), 0.9, 0.9)),
-	Sphere(vec3(5, 2, 5), 1, Material(vec3(0.95, 0.95, 0.95), vec3(1, 1, 1), vec3(10), 0, 0)),
-	Sphere(vec3( 3, 0, 0), 1, Material(vec3(0.95, 0.95, 0.95), vec3(0.50, 0.50, 0.95), vec3(0), 0.9, 0.9))
+	Sphere(vec3(20, 30, 40), 1, Material(vec3(0.95, 0.5, 0.95), vec3(1.0, 0.80, 0.80), vec3(0), 1.0, 0.9)),
+	Sphere(vec3(8, 8, 8), 1, Material(vec3(0.5, 0.95, 0.95), vec3(0.80, 1.0, 0.80), vec3(0), 0.9, 0.9)),
+	Sphere(vec3(16, 16, 16), 1, Material(vec3(0.95, 0.95, 0.95), vec3(1, 1, 1), vec3(5), 0, 0)),
+	Sphere(vec3(0, 0, 0), 1, Material(vec3(0.95, 0.95, 0.95), vec3(0.50, 0.50, 0.95), vec3(0), 0.9, 0.9))
 );
 
 const int numPlanes = 1;
