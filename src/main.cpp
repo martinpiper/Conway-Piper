@@ -19,8 +19,7 @@
 #include "utils.h"
 
 constexpr auto dimension = 48;
-bool generateCells = true;
-//bool generateCells = false;
+bool generateCells = false;
 bool updateBuffer = true;
 
 #include "Structs.h"
@@ -104,16 +103,19 @@ void cameraMouseCallback(GLFWwindow *window, const double posX, const double pos
 bool useFresnel = false;
 AppState* appStatePtr;
 
-void keyPressedCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-
-	if (key == GLFW_KEY_P && action == GLFW_PRESS) {
+void keyPressedCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+	if (key == GLFW_KEY_P && action == GLFW_PRESS)
+	{
 		appStatePtr->useSRGB = !appStatePtr->useSRGB;
 	}
-	if (key == GLFW_KEY_O && action == GLFW_PRESS) {
+	if (key == GLFW_KEY_O && action == GLFW_PRESS)
+	{
 		appStatePtr->useACES = !appStatePtr->useACES;
 	}
 
-	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)  {
+	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+	{
 		//hide or show cursor
 		if (paused) {
 			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -128,7 +130,8 @@ void keyPressedCallback(GLFWwindow* window, int key, int scancode, int action, i
 	if(paused)
 		return;
 
-	if (key == GLFW_KEY_G && action == GLFW_PRESS) {
+	if (key == GLFW_KEY_G && action == GLFW_PRESS)
+	{
 		generateCells = true;
 	}
 
@@ -763,7 +766,6 @@ int main()
 		frame++;
 		frameSinceLastReset++;
 
-
 		if (generateCells)
 		{
 			updateBuffer = true;
@@ -774,33 +776,6 @@ int main()
 			if (!rule3D)
 			{
 				depth = 1;
-			}
-
-			for (int i = 0; i < s_data.mapw; i++) {
-				for (int j = 0; j < s_data.maph; j++) {
-					for (int k = 0; k < depth; k++) {
-						if (willGrow[i + s_data.mapw * j + s_data.mapw * s_data.maph * k])
-						{
-							s_data.data[i + s_data.mapw * j + s_data.mapw * s_data.maph * k] = 2;
-//							s_data.data[i + s_data.mapw * j + s_data.mapw * s_data.maph * k] = rand() % 9 + 1;
-							willGrow[i + s_data.mapw * j + s_data.mapw * s_data.maph * k] = false;
-						}
-						else if (willDie[i + s_data.mapw * j + s_data.mapw * s_data.maph * k])
-						{
-							s_data.data[i + s_data.mapw * j + s_data.mapw * s_data.maph * k] = 0;
-							willDie[i + s_data.mapw * j + s_data.mapw * s_data.maph * k] = false;
-						}
-						else if (s_data.data[i + s_data.mapw * j + s_data.mapw * s_data.maph * k] > 0)
-						{
-							s_data.data[i + s_data.mapw * j + s_data.mapw * s_data.maph * k] = s_data.data[i + s_data.mapw * j + s_data.mapw * s_data.maph * k] + 1;
-							if (s_data.data[i + s_data.mapw * j + s_data.mapw * s_data.maph * k] >= 9)
-							{
-//								s_data.data[i + s_data.mapw * j + s_data.mapw * s_data.maph * k] = rand() % 9 + 1;
-								s_data.data[i + s_data.mapw * j + s_data.mapw * s_data.maph * k] = 1;
-							}
-						}
-					}
-				}
 			}
 
 			// Calculate what to do next
@@ -899,6 +874,36 @@ int main()
 								{
 									setWillGrow(true, i, j, k);
 								}
+							}
+						}
+					}
+				}
+			}
+
+			for (int i = 0; i < s_data.mapw; i++)
+			{
+				for (int j = 0; j < s_data.maph; j++)
+				{
+					for (int k = 0; k < depth; k++)
+					{
+						if (willGrow[i + s_data.mapw * j + s_data.mapw * s_data.maph * k])
+						{
+							s_data.data[i + s_data.mapw * j + s_data.mapw * s_data.maph * k] = 2;
+							//							s_data.data[i + s_data.mapw * j + s_data.mapw * s_data.maph * k] = rand() % 9 + 1;
+							willGrow[i + s_data.mapw * j + s_data.mapw * s_data.maph * k] = false;
+						}
+						else if (willDie[i + s_data.mapw * j + s_data.mapw * s_data.maph * k])
+						{
+							s_data.data[i + s_data.mapw * j + s_data.mapw * s_data.maph * k] = 0;
+							willDie[i + s_data.mapw * j + s_data.mapw * s_data.maph * k] = false;
+						}
+						else if (s_data.data[i + s_data.mapw * j + s_data.mapw * s_data.maph * k] > 0)
+						{
+							s_data.data[i + s_data.mapw * j + s_data.mapw * s_data.maph * k] = s_data.data[i + s_data.mapw * j + s_data.mapw * s_data.maph * k] + 1;
+							if (s_data.data[i + s_data.mapw * j + s_data.mapw * s_data.maph * k] >= 9)
+							{
+								//								s_data.data[i + s_data.mapw * j + s_data.mapw * s_data.maph * k] = rand() % 9 + 1;
+								s_data.data[i + s_data.mapw * j + s_data.mapw * s_data.maph * k] = 1;
 							}
 						}
 					}
