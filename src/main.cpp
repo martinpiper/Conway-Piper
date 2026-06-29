@@ -630,32 +630,28 @@ int main(int argc, char **argv)
 	// Blinker
 	int x = dimension / 2;
 	int y = dimension / 2;
-	life.setCell(s_data.data, 1, 1 + x, y, 0);
-	life.setCell(s_data.data, 1, 2 + x, y, 0);
-	life.setCell(s_data.data, 1, 3 + x, y, 0);
-#endif
+	life.setCell(s_data.data, 2, 1 + x, y, 0);
+	life.setCell(s_data.data, 2, 2 + x, y, 0);
+	life.setCell(s_data.data, 2, 3 + x, y, 0);
 
-#if 0
 	// Toad
-	int x = dimension / 2;
-	int y = dimension / 2;
-	life.setCell(s_data.data, 1, 2 + x, 1 + y, 0);
-	life.setCell(s_data.data, 1, 3 + x, 1 + y, 0);
-	life.setCell(s_data.data, 1, 4 + x, 1 + y, 0);
-	life.setCell(s_data.data, 1, 1 + x, 2 + y, 0);
-	life.setCell(s_data.data, 1, 2 + x, 2 + y, 0);
-	life.setCell(s_data.data, 1, 3 + x, 2 + y, 0);
-#endif
+	x = dimension / 3;
+	y = dimension / 2;
+	life.setCell(s_data.data, 3, 2 + x, 1 + y, 0);
+	life.setCell(s_data.data, 3, 3 + x, 1 + y, 0);
+	life.setCell(s_data.data, 3, 4 + x, 1 + y, 0);
+	life.setCell(s_data.data, 3, 1 + x, 2 + y, 0);
+	life.setCell(s_data.data, 3, 2 + x, 2 + y, 0);
+	life.setCell(s_data.data, 3, 3 + x, 2 + y, 0);
 
-#if 0
 	// Glider
-	int x = dimension / 2;
-	int y = dimension / 2;
-	life.setCell(s_data.data, 1, 2 + x, 3 + y, 0);
-	life.setCell(s_data.data, 1, 1 + x, 2 + y, 0);
-	life.setCell(s_data.data, 1, 3 + x, 1 + y, 0);
-	life.setCell(s_data.data, 1, 2 + x, 1 + y, 0);
-	life.setCell(s_data.data, 1, 1 + x, 1 + y, 0);
+	x = dimension / 4;
+	y = dimension / 2;
+	life.setCell(s_data.data, 4, 2 + x, 3 + y, 0);
+	life.setCell(s_data.data, 4, 1 + x, 2 + y, 0);
+	life.setCell(s_data.data, 4, 3 + x, 1 + y, 0);
+	life.setCell(s_data.data, 4, 2 + x, 1 + y, 0);
+	life.setCell(s_data.data, 4, 1 + x, 1 + y, 0);
 #endif
 
 	// 3D
