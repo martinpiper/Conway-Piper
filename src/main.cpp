@@ -9,6 +9,8 @@
 #include <vector>
 #include <fstream>
 #include <sstream>
+#include <set>
+#include <inttypes.h>
 
 #include <glad/gl.h>
 #include <GLFW/glfw3.h>
@@ -381,7 +383,7 @@ void initFrameBuffer(Framebuffer& buff) {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-int main()
+int main(int argc, char **argv)
 {
 	srand(123);
 
@@ -406,6 +408,71 @@ int main()
 
 	life.Init(s_data.mapw, s_data.maph, s_data.mapd, 10);
 	life.Clear(s_data.data);
+
+#if 0
+	// Test code to find interesting patterns
+	for (int tw = 4; tw < 5; tw++)
+	{
+		for (int th = 5; th < 6; th++)
+		{
+			// Try all permutations for the dimensions
+			int numCells = tw * th;
+			uint64_t permutations = 1ULL << numCells;
+//			int start = atoi(argv[1]);
+//			int step = atoi(argv[2]);
+			int start = 1;
+			int step = 1;
+			printf("%d %d\n", start, step);
+			for (uint64_t bitField = start; bitField < permutations; bitField += step)
+			{
+				life.Clear(s_data.data);
+
+				// Depth of two
+				life.generateShapeFromSeed(s_data.data, bitField, tw, th, dimension / 2, dimension / 2, dimension / 2);
+				life.generateShapeFromSeed(s_data.data, bitField, tw, th, dimension / 2, dimension / 2, (dimension / 2) + 1);
+
+				std::string startingPosition = life.Save(s_data.data);
+
+				std::string testSave;
+				std::set<std::string> previousSaves;
+				bool foundRepeat = false;
+				for (int iters = 0; iters < 30; iters++)
+				{
+					testSave = life.Save(s_data.data);
+					if (testSave.empty())
+					{
+						// A pattern that disappears is not interesting
+						break;
+					}
+					std::pair<std::set<std::string>::iterator,bool> inserted = previousSaves.insert(testSave);
+					if (!inserted.second)
+					{
+						foundRepeat = true;
+						break;
+					}
+					life.Tick(s_data.data);
+				}
+
+				// Final static ending test ticks. Without the origin check will find shapes that can translate.
+				life.Tick(s_data.data);
+				std::string testSave2 = life.Save(s_data.data, false);
+				life.Tick(s_data.data);
+				std::string testSave3 = life.Save(s_data.data, false);
+				life.Tick(s_data.data);
+				std::string testSave4 = life.Save(s_data.data, false);
+
+				// Only output interesting sequences, not static formations, and non-static ending formations, and non-alternating end patterns
+				if (foundRepeat && previousSaves.size() >= 2 && testSave2 != testSave3 && testSave2 != testSave4)
+				{
+					printf("Found repeating pattern %" PRIu64 ", wh:%d,%d max length %d\n" , bitField, tw, th, previousSaves.size());
+//					printf("Starting with:\n%s\n", startingPosition.c_str());
+//					printf("Repeating to:\n%s\n", testSave.c_str());
+				}
+			}
+		}
+	}
+	exit(0);
+#endif
 
 	AppState appState;
 	appStatePtr = &appState;
@@ -606,21 +673,23 @@ int main()
 	}
 #endif
 
-#if 0
+#if 1
 	// Larger longer ship two depth
-	int x = dimension / 2;
-	int y = dimension / 2;
-	for (int z = 8; z <= 9; z++)
-	{
-		life.setCell(s_data.data, z-5, x - 1, y + 0, z);
-		life.setCell(s_data.data, z-5, x - 0, y + 1, z);
-		life.setCell(s_data.data, z-5, x - 1, y + 1, z);
-		life.setCell(s_data.data, z-5, x - 2, y + 1, z);
-		life.setCell(s_data.data, z-5, x - 2, y + 2, z);
-		life.setCell(s_data.data, z-5, x - 0, y + 3, z);
-		life.setCell(s_data.data, z-5, x - 1, y + 3, z);
-		life.setCell(s_data.data, z-5, x - 0, y + 4, z);
-	}
+	life.generateShapeFromSeed(s_data.data, 26982, 4, 5, dimension / 2, dimension / 2, 10);
+	life.generateShapeFromSeed(s_data.data, 26982, 4, 5, dimension / 2, dimension / 2, 11);
+
+	// These reduce to gliders in different orientations
+	life.generateShapeFromSeed(s_data.data, 378618, 4, 5, dimension / 2, dimension / 2, 20);
+	life.generateShapeFromSeed(s_data.data, 378618, 4, 5, dimension / 2, dimension / 2, 21);
+
+	life.generateShapeFromSeed(s_data.data, 363711, 4, 5, dimension / 2, dimension / 2, 30);
+	life.generateShapeFromSeed(s_data.data, 363711, 4, 5, dimension / 2, dimension / 2, 31);
+
+	life.generateShapeFromSeed(s_data.data, 354042, 4, 5, dimension / 2, dimension / 2, 40);
+	life.generateShapeFromSeed(s_data.data, 354042, 4, 5, dimension / 2, dimension / 2, 41);
+
+	life.generateShapeFromSeed(s_data.data, 348075, 4, 5, dimension / 2, dimension / 2, 50);
+	life.generateShapeFromSeed(s_data.data, 348075, 4, 5, dimension / 2, dimension / 2, 51);
 #endif
 
 #if 0
@@ -646,7 +715,7 @@ int main()
 	life.setCell(s_data.data, 2, x + 2, y + 1, 9);
 #endif
 
-#if 1
+#if 0
 	// Pulsar
 	life.ruleCellDiesFewerThan = 5;
 	life.ruleCellLivesFewerThan = 6;
@@ -664,6 +733,39 @@ int main()
 	life.setCell(s_data.data, 5, x, y + 1, z);
 	life.setCell(s_data.data, 6, x, y, z - 1);
 	life.setCell(s_data.data, 7, x, y, z + 1);
+#endif
+
+#if 0
+	life.generateShapeFromSeed(s_data.data, 1847ULL, 3, 5, dimension / 2, dimension / 2, 10);
+	life.generateShapeFromSeed(s_data.data, 1847ULL, 3, 5, dimension / 2, dimension / 2, 11);
+
+	life.generateShapeFromSeed(s_data.data, 15485, 3, 5, dimension / 2, dimension / 2, 20);
+	life.generateShapeFromSeed(s_data.data, 15485, 3, 5, dimension / 2, dimension / 2, 21);
+
+	life.generateShapeFromSeed(s_data.data, 11869, 4, 5, dimension / 2, dimension / 2, 30);
+	life.generateShapeFromSeed(s_data.data, 11869, 4, 5, dimension / 2, dimension / 2, 31);
+#endif
+
+	std::string testSave = life.Save(s_data.data);
+
+#if 0
+	// Look for a specific pattern to find its seed
+	int numCells = 4 * 5;
+	uint64_t permutations = 1ULL << numCells;
+	for (uint64_t bitField = 1; bitField < permutations; bitField++)
+	{
+		life.Clear(s_data.data);
+
+		life.generateShapeFromSeed(s_data.data, bitField, 4, 5, dimension / 2, dimension / 2, 30);
+		life.generateShapeFromSeed(s_data.data, bitField, 4, 5, dimension / 2, dimension / 2, 31);
+
+		std::string testSave2 = life.Save(s_data.data);
+
+		if (testSave == testSave2)
+		{
+			printf("Found pattern %" PRIu64 "\n", bitField);
+		}
+	}
 #endif
 
 

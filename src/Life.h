@@ -1,4 +1,5 @@
 #pragma once
+#include <string>
 
 class Life
 {
@@ -27,6 +28,10 @@ public:
 	}
 
 	void Clear(int* cells);
+
+	std::string Save(int* cells, const bool withOriginCheck = true, const bool justPositions = true);
+
+	void generateShapeFromSeed(int* cells, const uint64_t bits, const int w, const int h, const int x, const int y, const int z);
 
 private:
 	bool* willDie = nullptr;
