@@ -7,4 +7,5 @@ extern int ruleCellDiesMoreThan;
 extern int ruleCellGrowsMoreThan;
 extern int ruleCellGrowsFewerThan;
 
-extern void Life_Tick(int* cells, const int width, const int height, const int depth);
+extern void Life_Init(const int width, const int height, const int depth);
+extern void Life_Tick(int* cells);

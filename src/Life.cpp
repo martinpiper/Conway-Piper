@@ -1,5 +1,7 @@
 // Life processing
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 bool rule3D = true;
 int ruleCellDiesFewerThan = 5;
@@ -15,6 +17,16 @@ static int sWidth = 0;
 static int sHeight = 0;
 static int sDepth = 0;
 
+extern void Life_Init(const int width, const int height, const int depth)
+{
+	sWidth = width;
+	sHeight = height;
+	sDepth = depth;
+
+	willDie = (bool*) calloc(width * height * depth, sizeof(bool));
+	willGrow = (bool*) calloc(width * height * depth, sizeof(bool));
+}
+
 static void setWillDie(bool flag, int w, int h, int d)
 {
 	willDie[w + (sWidth * h) + (sWidth * sHeight * d)] = flag;
@@ -25,26 +37,19 @@ static void setWillGrow(bool flag, int w, int h, int d)
 	willGrow[w + (sWidth * h) + (sWidth * sHeight * d)] = flag;
 }
 
-void Life_Tick(int *cells, const int width, const int height, const int depth)
+void Life_Tick(int *cells)
 {
-	sWidth = width;
-	sHeight = height;
-	sDepth = depth;
-
-	if (!willDie)
+	int depth = sDepth;
+	if (!rule3D)
 	{
-		willDie = new bool[width * height * depth];
-	}
-	if (!willGrow)
-	{
-		willGrow = new bool[width * height * depth];
+		depth = 1;
 	}
 
 	// Process any state
 	// Calculate what to do next
-	for (int i = 1; i < width - 1; i++)
+	for (int i = 1; i < sWidth - 1; i++)
 	{
-		for (int j = 1; j < height - 1; j++)
+		for (int j = 1; j < sHeight - 1; j++)
 		{
 			if (!rule3D)
 			{
@@ -59,13 +64,13 @@ void Life_Tick(int *cells, const int width, const int height, const int depth)
 							continue;
 						}
 
-						if (cells[(i + di) + width * (j + dj)] > 0)
+						if (cells[(i + di) + sWidth * (j + dj)] > 0)
 						{
 							neighbours++;
 						}
 					}
 				}
-				if (cells[i + width * j] > 0)
+				if (cells[i + sWidth * j] > 0)
 				{
 					// Any live cell...
 					if (neighbours < ruleCellDiesFewerThan)
@@ -107,14 +112,14 @@ void Life_Tick(int *cells, const int width, const int height, const int depth)
 									continue;
 								}
 
-								if (cells[(i + di) + width * (j + dj) + width * height * (k + dk)] > 0)
+								if (cells[(i + di) + sWidth * (j + dj) + sWidth * sHeight * (k + dk)] > 0)
 								{
 									neighbours++;
 								}
 							}
 						}
 					}
-					if (cells[i + width * j + width * height * k] > 0)
+					if (cells[i + sWidth * j + sWidth * sHeight * k] > 0)
 					{
 						// Any live cell...
 						if (neighbours < ruleCellDiesFewerThan)
@@ -143,30 +148,30 @@ void Life_Tick(int *cells, const int width, const int height, const int depth)
 		}
 	}
 
-	for (int i = 0; i < width; i++)
+	for (int i = 0; i < sWidth; i++)
 	{
-		for (int j = 0; j < height; j++)
+		for (int j = 0; j < sHeight; j++)
 		{
 			for (int k = 0; k < depth; k++)
 			{
-				if (willGrow[i + width * j + width * height * k])
+				if (willGrow[i + sWidth * j + sWidth * sHeight * k])
 				{
-					cells[i + width * j + width * height * k] = 2;
+					cells[i + sWidth * j + sWidth * sHeight * k] = 2;
 					//							cells[i + width * j + width * height * k] = rand() % 9 + 1;
-					willGrow[i + width * j + width * height * k] = false;
+					willGrow[i + sWidth * j + sWidth * sHeight * k] = false;
 				}
-				else if (willDie[i + width * j + width * height * k])
+				else if (willDie[i + sWidth * j + sWidth * sHeight * k])
 				{
-					cells[i + width * j + width * height * k] = 0;
-					willDie[i + width * j + width * height * k] = false;
+					cells[i + sWidth * j + sWidth * sHeight * k] = 0;
+					willDie[i + sWidth * j + sWidth * sHeight * k] = false;
 				}
-				else if (cells[i + width * j + width * height * k] > 0)
+				else if (cells[i + sWidth * j + sWidth * sHeight * k] > 0)
 				{
-					cells[i + width * j + width * height * k] = cells[i + width * j + width * height * k] + 1;
-					if (cells[i + width * j + width * height * k] >= 9)
+					cells[i + sWidth * j + sWidth * sHeight * k] = cells[i + sWidth * j + sWidth * sHeight * k] + 1;
+					if (cells[i + sWidth * j + sWidth * sHeight * k] >= 9)
 					{
 						//								cells[i + width * j + width * height * k] = rand() % 9 + 1;
-						cells[i + width * j + width * height * k] = 1;
+						cells[i + sWidth * j + sWidth * sHeight * k] = 1;
 					}
 				}
 			}

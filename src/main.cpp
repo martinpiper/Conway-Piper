@@ -402,6 +402,7 @@ int main()
 	ruleCellGrowsFewerThan = 7;
 #endif
 
+	Life_Init(s_data.mapw, s_data.maph, s_data.mapd);
 
 	AppState appState;
 	appStatePtr = &appState;
@@ -788,14 +789,7 @@ int main()
 			updateBuffer = true;
 			generateCells = false;
 
-			// Process any state
-			int depth = s_data.mapd;
-			if (!rule3D)
-			{
-				depth = 1;
-			}
-
-			Life_Tick(s_data.data,s_data.mapw,s_data.maph,depth);
+			Life_Tick(s_data.data);
 		}
 
 		if (updateBuffer)
