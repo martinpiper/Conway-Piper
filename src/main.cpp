@@ -19,6 +19,8 @@
 #include "utils.h"
 #include "Life.h"
 
+Life life;
+
 constexpr auto dimension = 60;
 bool generateCells = false;
 bool updateBuffer = true;
@@ -318,7 +320,7 @@ bool initOpenGL(AppState *appState) {
 
 	// Create a windowed mode window and its OpenGL context
 	char title[128];
-	sprintf(title, "Conway-Piper/%d/%d/%d/%d/%d/%d", rule3D?3:2, ruleCellDiesFewerThan, ruleCellLivesFewerThan , ruleCellDiesMoreThan, ruleCellGrowsMoreThan, ruleCellGrowsFewerThan);
+	sprintf(title, "Conway-Piper/%d/%d/%d/%d/%d/%d", life.rule3D?3:2, life.ruleCellDiesFewerThan, life.ruleCellLivesFewerThan , life.ruleCellDiesMoreThan, life.ruleCellGrowsMoreThan, life.ruleCellGrowsFewerThan);
 	appState->window = glfwCreateWindow(width, height, title, NULL, NULL);
 	if (!appState->window) {
 		std::cerr << "Failed to create GLFW window" << std::endl;
@@ -385,24 +387,24 @@ int main()
 
 #if 0
 	// The standard Conway rules ( https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life#Rules )
-	rule3D = false;
-	ruleCellDiesFewerThan = 2;
-	ruleCellLivesFewerThan = 4;
-	ruleCellDiesMoreThan = 3;
+	life.rule3D = false;
+	life.ruleCellDiesFewerThan = 2;
+	life.ruleCellLivesFewerThan = 4;
+	life.ruleCellDiesMoreThan = 3;
 	// Gives a range for when a cell grows
-	ruleCellGrowsMoreThan = 2;
-	ruleCellGrowsFewerThan = 4;
+	life.ruleCellGrowsMoreThan = 2;
+	life.ruleCellGrowsFewerThan = 4;
 #else
-	rule3D = true;
-	ruleCellDiesFewerThan = 5;
-	ruleCellLivesFewerThan = 7;
-	ruleCellDiesMoreThan = 7;
+	life.rule3D = true;
+	life.ruleCellDiesFewerThan = 5;
+	life.ruleCellLivesFewerThan = 7;
+	life.ruleCellDiesMoreThan = 7;
 	// Gives a range for when a cell grows
-	ruleCellGrowsMoreThan = 5;
-	ruleCellGrowsFewerThan = 7;
+	life.ruleCellGrowsMoreThan = 5;
+	life.ruleCellGrowsFewerThan = 7;
 #endif
 
-	Life_Init(s_data.mapw, s_data.maph, s_data.mapd);
+	life.Init(s_data.mapw, s_data.maph, s_data.mapd, 10);
 
 	AppState appState;
 	appStatePtr = &appState;
@@ -624,11 +626,11 @@ int main()
 
 #if 0
 	// Bracket glider
-	ruleCellDiesFewerThan = 4;
-	ruleCellLivesFewerThan = 5;
-	ruleCellDiesMoreThan = 5;
-	ruleCellGrowsMoreThan = 4;
-	ruleCellGrowsFewerThan = 6;
+	life.ruleCellDiesFewerThan = 4;
+	life.ruleCellLivesFewerThan = 5;
+	life.ruleCellDiesMoreThan = 5;
+	life.ruleCellGrowsMoreThan = 4;
+	life.ruleCellGrowsFewerThan = 6;
 
 	int x = dimension / 2;
 	int y = dimension - 5;
@@ -647,11 +649,11 @@ int main()
 
 #if 1
 	// Pulsar
-	ruleCellDiesFewerThan = 5;
-	ruleCellLivesFewerThan = 6;
-	ruleCellDiesMoreThan = 5;
-	ruleCellGrowsMoreThan = 3;
-	ruleCellGrowsFewerThan = 6;
+	life.ruleCellDiesFewerThan = 5;
+	life.ruleCellLivesFewerThan = 6;
+	life.ruleCellDiesMoreThan = 5;
+	life.ruleCellGrowsMoreThan = 3;
+	life.ruleCellGrowsFewerThan = 6;
 
 	int x = dimension / 2;
 	int y = dimension / 2;
@@ -789,7 +791,7 @@ int main()
 			updateBuffer = true;
 			generateCells = false;
 
-			Life_Tick(s_data.data);
+			life.Tick(s_data.data);
 		}
 
 		if (updateBuffer)

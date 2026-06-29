@@ -3,21 +3,19 @@
 #include <stdlib.h>
 #include <string.h>
 
-bool rule3D = true;
-int ruleCellDiesFewerThan = 5;
-int ruleCellLivesFewerThan = 7;
-int ruleCellDiesMoreThan = 7;
-// Gives a range for when a cell grows
-int ruleCellGrowsMoreThan = 5;
-int ruleCellGrowsFewerThan = 7;
+#include "Life.h"
 
-static bool* willDie = nullptr;
-static bool* willGrow = nullptr;
-static int sWidth = 0;
-static int sHeight = 0;
-static int sDepth = 0;
+Life::Life()
+{
+}
 
-extern void Life_Init(const int width, const int height, const int depth)
+Life::~Life()
+{
+	free(willDie);
+	free(willGrow);
+}
+
+void Life::Init(const int width, const int height, const int depth, const int maxLifetime)
 {
 	sWidth = width;
 	sHeight = height;
@@ -25,19 +23,21 @@ extern void Life_Init(const int width, const int height, const int depth)
 
 	willDie = (bool*) calloc(width * height * depth, sizeof(bool));
 	willGrow = (bool*) calloc(width * height * depth, sizeof(bool));
+
+	lifetime = maxLifetime;
 }
 
-static void setWillDie(bool flag, int w, int h, int d)
+void Life::setWillDie(bool flag, int w, int h, int d)
 {
 	willDie[w + (sWidth * h) + (sWidth * sHeight * d)] = flag;
 }
 
-static void setWillGrow(bool flag, int w, int h, int d)
+void Life::setWillGrow(bool flag, int w, int h, int d)
 {
 	willGrow[w + (sWidth * h) + (sWidth * sHeight * d)] = flag;
 }
 
-void Life_Tick(int *cells)
+void Life::Tick(int *cells)
 {
 	int depth = sDepth;
 	if (!rule3D)
@@ -157,7 +157,7 @@ void Life_Tick(int *cells)
 				if (willGrow[i + sWidth * j + sWidth * sHeight * k])
 				{
 					cells[i + sWidth * j + sWidth * sHeight * k] = 2;
-					//							cells[i + width * j + width * height * k] = rand() % 9 + 1;
+//					cells[i + width * j + width * height * k] = rand() % lifetime + 1;
 					willGrow[i + sWidth * j + sWidth * sHeight * k] = false;
 				}
 				else if (willDie[i + sWidth * j + sWidth * sHeight * k])
@@ -168,9 +168,9 @@ void Life_Tick(int *cells)
 				else if (cells[i + sWidth * j + sWidth * sHeight * k] > 0)
 				{
 					cells[i + sWidth * j + sWidth * sHeight * k] = cells[i + sWidth * j + sWidth * sHeight * k] + 1;
-					if (cells[i + sWidth * j + sWidth * sHeight * k] >= 9)
+					if (cells[i + sWidth * j + sWidth * sHeight * k] >= lifetime)
 					{
-						//								cells[i + width * j + width * height * k] = rand() % 9 + 1;
+//						cells[i + width * j + width * height * k] = rand() % lifetime + 1;
 						cells[i + sWidth * j + sWidth * sHeight * k] = 1;
 					}
 				}

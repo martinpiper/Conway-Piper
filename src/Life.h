@@ -1,11 +1,29 @@
 #pragma once
 
-extern bool rule3D;
-extern int ruleCellDiesFewerThan;
-extern int ruleCellLivesFewerThan;
-extern int ruleCellDiesMoreThan;
-extern int ruleCellGrowsMoreThan;
-extern int ruleCellGrowsFewerThan;
+class Life
+{
+public:
+	Life();
+	virtual ~Life();
+	bool rule3D = true;
+	int ruleCellDiesFewerThan = 5;
+	int ruleCellLivesFewerThan = 7;
+	int ruleCellDiesMoreThan = 7;
+	// Gives a range for when a cell grows
+	int ruleCellGrowsMoreThan = 5;
+	int ruleCellGrowsFewerThan = 7;
 
-extern void Life_Init(const int width, const int height, const int depth);
-extern void Life_Tick(int* cells);
+	void Init(const int width, const int height, const int depth, const int maxLifetime);
+	void Tick(int* cells);
+
+private:
+	bool* willDie = nullptr;
+	bool* willGrow = nullptr;
+	int sWidth = 0;
+	int sHeight = 0;
+	int sDepth = 0;
+	int lifetime = 0;
+
+	void setWillDie(bool flag, int w, int h, int d);
+	void setWillGrow(bool flag, int w, int h, int d);
+};
