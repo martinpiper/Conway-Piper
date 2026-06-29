@@ -161,7 +161,7 @@ void keyPressedCallback(GLFWwindow* window, int key, int scancode, int action, i
 				int ty = int(wantPos.y);
 				int tz = int(wantPos.z);
 
-				int cell = s_data.getCell(tx, ty, tz);
+				int cell = life.getCell(s_data.data, tx, ty, tz);
 				if (!cell)
 				{
 					x = tx;
@@ -180,7 +180,7 @@ void keyPressedCallback(GLFWwindow* window, int key, int scancode, int action, i
 			static int col = 1;
 			col += 1;
 			col = (col % 9) + 1;
-			s_data.setCell(col, x, y, z);
+			life.setCell(s_data.data, col, x, y, z);
 			updateBuffer = true;
 		}
 	}
@@ -202,10 +202,10 @@ void keyPressedCallback(GLFWwindow* window, int key, int scancode, int action, i
 				int ty = int(wantPos.y);
 				int tz = int(wantPos.z);
 
-				int cell = s_data.getCell(tx, ty, tz);
+				int cell = life.getCell(s_data.data, tx, ty, tz);
 				if (cell)
 				{
-					s_data.setCell(0, tx, ty, tz);
+					life.setCell(s_data.data, 0, tx, ty, tz);
 					updateBuffer = true;
 					break;
 				}
@@ -564,32 +564,32 @@ int main()
 	// Blinker
 	int x = dimension / 2;
 	int y = dimension / 2;
-	s_data.setCell(1, 1 + x, y, 0);
-	s_data.setCell(1, 2 + x, y, 0);
-	s_data.setCell(1, 3 + x, y, 0);
+	life.setCell(s_data.data, 1, 1 + x, y, 0);
+	life.setCell(s_data.data, 1, 2 + x, y, 0);
+	life.setCell(s_data.data, 1, 3 + x, y, 0);
 #endif
 
 #if 0
 	// Toad
 	int x = dimension / 2;
 	int y = dimension / 2;
-	s_data.setCell(1, 2 + x, 1 + y, 0);
-	s_data.setCell(1, 3 + x, 1 + y, 0);
-	s_data.setCell(1, 4 + x, 1 + y, 0);
-	s_data.setCell(1, 1 + x, 2 + y, 0);
-	s_data.setCell(1, 2 + x, 2 + y, 0);
-	s_data.setCell(1, 3 + x, 2 + y, 0);
+	life.setCell(s_data.data, 1, 2 + x, 1 + y, 0);
+	life.setCell(s_data.data, 1, 3 + x, 1 + y, 0);
+	life.setCell(s_data.data, 1, 4 + x, 1 + y, 0);
+	life.setCell(s_data.data, 1, 1 + x, 2 + y, 0);
+	life.setCell(s_data.data, 1, 2 + x, 2 + y, 0);
+	life.setCell(s_data.data, 1, 3 + x, 2 + y, 0);
 #endif
 
 #if 0
 	// Glider
 	int x = dimension / 2;
 	int y = dimension / 2;
-	s_data.setCell(1, 2 + x, 3 + y, 0);
-	s_data.setCell(1, 1 + x, 2 + y, 0);
-	s_data.setCell(1, 3 + x, 1 + y, 0);
-	s_data.setCell(1, 2 + x, 1 + y, 0);
-	s_data.setCell(1, 1 + x, 1 + y, 0);
+	life.setCell(s_data.data, 1, 2 + x, 3 + y, 0);
+	life.setCell(s_data.data, 1, 1 + x, 2 + y, 0);
+	life.setCell(s_data.data, 1, 3 + x, 1 + y, 0);
+	life.setCell(s_data.data, 1, 2 + x, 1 + y, 0);
+	life.setCell(s_data.data, 1, 1 + x, 1 + y, 0);
 #endif
 
 	// 3D
@@ -599,12 +599,12 @@ int main()
 	int y = dimension / 2;
 	for (int z = 8; z <= 9; z++)
 	{
-		s_data.setCell(z-5, 2 + x, 3 + y, z);
-		s_data.setCell(z-5, 1 + x, 2 + y, z);
-		s_data.setCell(z-5, 3 + x, 1 + y, z);
-		s_data.setCell(z-5, 2 + x, 1 + y, z);
-		s_data.setCell(z-5, 1 + x, 1 + y, z);
-}
+		life.setCell(s_data.data, z-5, 2 + x, 3 + y, z);
+		life.setCell(s_data.data, z-5, 1 + x, 2 + y, z);
+		life.setCell(s_data.data, z-5, 3 + x, 1 + y, z);
+		life.setCell(s_data.data, z-5, 2 + x, 1 + y, z);
+		life.setCell(s_data.data, z-5, 1 + x, 1 + y, z);
+	}
 #endif
 
 #if 0
@@ -613,14 +613,14 @@ int main()
 	int y = dimension / 2;
 	for (int z = 8; z <= 9; z++)
 	{
-		s_data.setCell(z-5, x - 1, y + 0, z);
-		s_data.setCell(z-5, x - 0, y + 1, z);
-		s_data.setCell(z-5, x - 1, y + 1, z);
-		s_data.setCell(z-5, x - 2, y + 1, z);
-		s_data.setCell(z-5, x - 2, y + 2, z);
-		s_data.setCell(z-5, x - 0, y + 3, z);
-		s_data.setCell(z-5, x - 1, y + 3, z);
-		s_data.setCell(z-5, x - 0, y + 4, z);
+		life.setCell(s_data.data, z-5, x - 1, y + 0, z);
+		life.setCell(s_data.data, z-5, x - 0, y + 1, z);
+		life.setCell(s_data.data, z-5, x - 1, y + 1, z);
+		life.setCell(s_data.data, z-5, x - 2, y + 1, z);
+		life.setCell(s_data.data, z-5, x - 2, y + 2, z);
+		life.setCell(s_data.data, z-5, x - 0, y + 3, z);
+		life.setCell(s_data.data, z-5, x - 1, y + 3, z);
+		life.setCell(s_data.data, z-5, x - 0, y + 4, z);
 	}
 #endif
 
@@ -634,17 +634,17 @@ int main()
 
 	int x = dimension / 2;
 	int y = dimension - 5;
-	s_data.setCell(1, x + 0, y + 2, 8);
-	s_data.setCell(1, x + 3, y + 2, 8);
-	s_data.setCell(1, x + 0, y + 1, 8);
-	s_data.setCell(1, x + 3, y + 1, 8);
-	s_data.setCell(1, x + 1, y + 0, 8);
-	s_data.setCell(1, x + 2, y + 0, 8);
+	life.setCell(s_data.data, 1, x + 0, y + 2, 8);
+	life.setCell(s_data.data, 1, x + 3, y + 2, 8);
+	life.setCell(s_data.data, 1, x + 0, y + 1, 8);
+	life.setCell(s_data.data, 1, x + 3, y + 1, 8);
+	life.setCell(s_data.data, 1, x + 1, y + 0, 8);
+	life.setCell(s_data.data, 1, x + 2, y + 0, 8);
 	//
-	s_data.setCell(2, x + 1, y + 2, 9);
-	s_data.setCell(2, x + 2, y + 2, 9);
-	s_data.setCell(2, x + 1, y + 1, 9);
-	s_data.setCell(2, x + 2, y + 1, 9);
+	life.setCell(s_data.data, 2, x + 1, y + 2, 9);
+	life.setCell(s_data.data, 2, x + 2, y + 2, 9);
+	life.setCell(s_data.data, 2, x + 1, y + 1, 9);
+	life.setCell(s_data.data, 2, x + 2, y + 1, 9);
 #endif
 
 #if 1
@@ -658,13 +658,13 @@ int main()
 	int x = dimension / 2;
 	int y = dimension / 2;
 	int z = dimension / 2;
-	s_data.setCell(1, x, y, z);
-	s_data.setCell(2, x - 1, y, z);
-	s_data.setCell(3, x + 1, y, z);
-	s_data.setCell(4, x, y - 1, z);
-	s_data.setCell(5, x, y + 1, z);
-	s_data.setCell(6, x, y, z - 1);
-	s_data.setCell(7, x, y, z + 1);
+	life.setCell(s_data.data, 1, x, y, z);
+	life.setCell(s_data.data, 2, x - 1, y, z);
+	life.setCell(s_data.data, 3, x + 1, y, z);
+	life.setCell(s_data.data, 4, x, y - 1, z);
+	life.setCell(s_data.data, 5, x, y + 1, z);
+	life.setCell(s_data.data, 6, x, y, z - 1);
+	life.setCell(s_data.data, 7, x, y, z + 1);
 #endif
 
 

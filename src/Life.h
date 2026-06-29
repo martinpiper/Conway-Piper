@@ -16,6 +16,16 @@ public:
 	void Init(const int width, const int height, const int depth, const int maxLifetime);
 	void Tick(int* cells);
 
+	void setCell(int* cells, int stage, int w, int h, int d)
+	{
+		cells[w + (sWidth * h) + (sWidth * sHeight * d)] = stage;
+	}
+
+	int getCell(int* cells, int w, int h, int d)
+	{
+		return cells[w + (sWidth * h) + (sWidth * sHeight * d)];
+	}
+
 private:
 	bool* willDie = nullptr;
 	bool* willGrow = nullptr;

@@ -42,16 +42,6 @@ struct shader_data {
 	glm::vec3 palette[10];
 	
 	int data[dimension* dimension * dimension];
-
-	void setCell(int stage, int w, int h, int d)
-	{
-		data[w + (mapw * h) + (mapw * maph * d)] = stage;
-	}
-
-	int getCell(int w, int h, int d)
-	{
-		return data[w + (mapw * h) + (mapw * maph * d)];
-	}
 };
 
 struct Framebuffer {
