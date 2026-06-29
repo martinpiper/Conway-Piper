@@ -17,6 +17,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "utils.h"
+#include "Life.h"
 
 constexpr auto dimension = 60;
 bool generateCells = false;
@@ -34,26 +35,6 @@ bool willGrow[dimension * dimension * dimension];
 #pragma comment(lib, "opengl32.lib")
 #pragma comment(lib, "glfw3.lib")
 #pragma comment(lib, "glew32.lib")
-
-#if 0
-// The standard Conway rules ( https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life#Rules )
-bool rule3D = false;
-int ruleCellDiesFewerThan = 2;
-int ruleCellLivesFewerThan = 4;
-int ruleCellDiesMoreThan = 3;
-// Gives a range for when a cell grows
-int ruleCellGrowsMoreThan = 2;
-int ruleCellGrowsFewerThan = 4;
-#else
-bool rule3D = true;
-int ruleCellDiesFewerThan = 5;
-int ruleCellLivesFewerThan = 7;
-int ruleCellDiesMoreThan = 7;
-// Gives a range for when a cell grows
-int ruleCellGrowsMoreThan = 5;
-int ruleCellGrowsFewerThan = 7;
-#endif
-
 
 int width = 800;
 int height = 800;
@@ -398,19 +379,29 @@ void initFrameBuffer(Framebuffer& buff) {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void setWillDie(bool flag, int w, int h, int d)
-{
-	willDie[w + (s_data.mapw * h) + (s_data.mapw * s_data.maph * d)] = flag;
-}
-
-void setWillGrow(bool flag, int w, int h, int d)
-{
-	willGrow[w + (s_data.mapw * h) + (s_data.mapw * s_data.maph * d)] = flag;
-}
-
 int main()
 {
 	srand(123);
+
+#if 0
+	// The standard Conway rules ( https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life#Rules )
+	rule3D = false;
+	ruleCellDiesFewerThan = 2;
+	ruleCellLivesFewerThan = 4;
+	ruleCellDiesMoreThan = 3;
+	// Gives a range for when a cell grows
+	ruleCellGrowsMoreThan = 2;
+	ruleCellGrowsFewerThan = 4;
+#else
+	rule3D = true;
+	ruleCellDiesFewerThan = 5;
+	ruleCellLivesFewerThan = 7;
+	ruleCellDiesMoreThan = 7;
+	// Gives a range for when a cell grows
+	ruleCellGrowsMoreThan = 5;
+	ruleCellGrowsFewerThan = 7;
+#endif
+
 
 	AppState appState;
 	appStatePtr = &appState;
@@ -804,137 +795,7 @@ int main()
 				depth = 1;
 			}
 
-			// Calculate what to do next
-			for (int i = 1; i < s_data.mapw - 1; i++)
-			{
-				for (int j = 1; j < s_data.maph - 1; j++)
-				{
-					if (!rule3D)
-					{
-						// 2D rules processing
-						int neighbours = 0;
-						for (int di = -1; di <= 1; di++)
-						{
-							for (int dj = -1; dj <= 1; dj++)
-							{
-								if (di == 0 && dj == 0)
-								{
-									continue;
-								}
-
-								if (s_data.data[(i + di) + s_data.mapw * (j + dj)] > 0)
-								{
-									neighbours++;
-								}
-							}
-						}
-						if (s_data.data[i + s_data.mapw * j] > 0)
-						{
-							// Any live cell...
-							if (neighbours < ruleCellDiesFewerThan)
-							{
-								setWillDie(true, i, j, 0);
-							}
-							else if (neighbours < ruleCellLivesFewerThan)
-							{
-								// Do nothing
-							}
-							else if (neighbours > ruleCellDiesMoreThan)
-							{
-								setWillDie(true, i, j, 0);
-							}
-						}
-						else
-						{
-							// Any dead cell...
-							if (neighbours > ruleCellGrowsMoreThan && neighbours < ruleCellGrowsFewerThan)
-							{
-								setWillGrow(true, i, j, 0);
-							}
-						}
-					}
-					else
-					{
-						// 3D rules processing
-						for (int k = 1; k < depth - 1; k++)
-						{
-							int neighbours = 0;
-							for (int di = -1; di <= 1; di++)
-							{
-								for (int dj = -1; dj <= 1; dj++)
-								{
-									for (int dk = -1; dk <= 1; dk++)
-									{
-										if (di == 0 && dj == 0 && dk == 0)
-										{
-											continue;
-										}
-
-										if (s_data.data[(i + di) + s_data.mapw * (j + dj) + s_data.mapw * s_data.maph * (k + dk)] > 0)
-										{
-											neighbours++;
-										}
-									}
-								}
-							}
-							if (s_data.data[i + s_data.mapw * j + s_data.mapw * s_data.maph * k] > 0)
-							{
-								// Any live cell...
-								if (neighbours < ruleCellDiesFewerThan)
-								{
-									setWillDie(true, i, j, k);
-								}
-								else if (neighbours < ruleCellLivesFewerThan)
-								{
-									// Do nothing
-								}
-								else if (neighbours > ruleCellDiesMoreThan)
-								{
-									setWillDie(true, i, j, k);
-								}
-							}
-							else
-							{
-								// Any dead cell...
-								if (neighbours > ruleCellGrowsMoreThan && neighbours < ruleCellGrowsFewerThan)
-								{
-									setWillGrow(true, i, j, k);
-								}
-							}
-						}
-					}
-				}
-			}
-
-			for (int i = 0; i < s_data.mapw; i++)
-			{
-				for (int j = 0; j < s_data.maph; j++)
-				{
-					for (int k = 0; k < depth; k++)
-					{
-						if (willGrow[i + s_data.mapw * j + s_data.mapw * s_data.maph * k])
-						{
-							s_data.data[i + s_data.mapw * j + s_data.mapw * s_data.maph * k] = 2;
-							//							s_data.data[i + s_data.mapw * j + s_data.mapw * s_data.maph * k] = rand() % 9 + 1;
-							willGrow[i + s_data.mapw * j + s_data.mapw * s_data.maph * k] = false;
-						}
-						else if (willDie[i + s_data.mapw * j + s_data.mapw * s_data.maph * k])
-						{
-							s_data.data[i + s_data.mapw * j + s_data.mapw * s_data.maph * k] = 0;
-							willDie[i + s_data.mapw * j + s_data.mapw * s_data.maph * k] = false;
-						}
-						else if (s_data.data[i + s_data.mapw * j + s_data.mapw * s_data.maph * k] > 0)
-						{
-							s_data.data[i + s_data.mapw * j + s_data.mapw * s_data.maph * k] = s_data.data[i + s_data.mapw * j + s_data.mapw * s_data.maph * k] + 1;
-							if (s_data.data[i + s_data.mapw * j + s_data.mapw * s_data.maph * k] >= 9)
-							{
-								//								s_data.data[i + s_data.mapw * j + s_data.mapw * s_data.maph * k] = rand() % 9 + 1;
-								s_data.data[i + s_data.mapw * j + s_data.mapw * s_data.maph * k] = 1;
-							}
-						}
-					}
-				}
-			}
+			Life_Tick(s_data.data,s_data.mapw,s_data.maph,depth);
 		}
 
 		if (updateBuffer)
