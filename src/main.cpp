@@ -405,6 +405,7 @@ int main()
 #endif
 
 	life.Init(s_data.mapw, s_data.maph, s_data.mapd, 10);
+	life.Clear(s_data.data);
 
 	AppState appState;
 	appStatePtr = &appState;
@@ -506,17 +507,15 @@ int main()
 
 	// Init shader storage buffer
 
+#if 0
 	for (int i = 0; i < s_data.mapw; i++) {
 		for (int j = 0; j < s_data.maph; j++) {
 			for (int k = 0; k < s_data.mapd; k++) {
-#if 0
 				s_data.data[i + s_data.mapw * j + s_data.mapw * s_data.maph * k] = (rand() % 9 + 1) * ((i==0||i== s_data.mapw-1||j==0||j== s_data.maph-1||k==0||k== s_data.mapd-1) || (rand() % 10 == 0));
-#else
-				s_data.data[i + s_data.mapw * j + s_data.mapw * s_data.maph * k] = 0;
-#endif
 			}
 		}
 	}
+#endif
 
 	for (int i = 0; i < 10; i++) {
 		s_data.palette[i] = glm::vec3(rand() / (float)RAND_MAX, rand() / (float)RAND_MAX, rand() / (float)RAND_MAX);

@@ -26,6 +26,8 @@ public:
 		return cells[w + (sWidth * h) + (sWidth * sHeight * d)];
 	}
 
+	void Clear(int* cells);
+
 private:
 	bool* willDie = nullptr;
 	bool* willGrow = nullptr;

@@ -178,3 +178,10 @@ void Life::Tick(int *cells)
 		}
 	}
 }
+
+void Life::Clear(int* cells)
+{
+	memset(cells, 0, sizeof(int) * sWidth * sHeight * sDepth);
+	memset(willDie, 0, sizeof(bool) * sWidth * sHeight * sDepth);
+	memset(willGrow, 0, sizeof(bool) * sWidth * sHeight * sDepth);
+}
